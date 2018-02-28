@@ -1,0 +1,15 @@
+{
+  "name": "static-site",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.203.0",
+    "mime-types": "^2.1.18"
+  }
+}

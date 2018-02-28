@@ -1,0 +1,10 @@
+type: static-site
+
+inputs:
+  files: /my-site
+
+components:
+  contentBucket:
+    type: s3
+    inputs:
+      name: ${parent:name}
