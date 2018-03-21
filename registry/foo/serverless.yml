@@ -1,0 +1,6 @@
+type: foo
+
+inputTypes:
+  str:
+    type: string
+    required: true

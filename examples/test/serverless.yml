@@ -1,0 +1,9 @@
+type: test
+
+components:
+  foo:
+    type: foo
+    inputs:
+      str: ${bar.num}
+  bar:
+    type: bar
