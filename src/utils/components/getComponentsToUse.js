@@ -33,8 +33,10 @@ const getComponentsToUse = async (
   }, Promise.resolve(components), keys(slsYml.components) || [])
 
   let fns = {}
-  if (await fileExists(path.join(componentRoot, 'index.js'))) {
-    fns = require(path.join(componentRoot, 'index.js')) // eslint-disable-line
+  try {
+    fns = require(componentRoot) // eslint-disable-line
+  } catch (error) {
+    console.log('error:', error)
   }
 
   components[slsYml.id] = {

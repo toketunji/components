@@ -1,8 +1,10 @@
 const path = require('path')
 const { keys, reduce } = require('ramda')
+const uuid = require('uuid')
 const getRegistryRoot = require('../getRegistryRoot')
 const getState = require('../state/getState')
 
+const runId = uuid.v4()
 const generateContext = (component, stateFile, archive, options, command) => {
   const { id, type } = component
   const context = {
@@ -12,6 +14,7 @@ const generateContext = (component, stateFile, archive, options, command) => {
     state: getState(stateFile, id),
     command,
     options,
+    getTempDir: () => path.resolve(process.cwd(), '.serverless', 'builds', runId, 'components', id),
     log: (message) => {
       if (!process.env.CI) {
         process.stdin.write(`${message}\n`)

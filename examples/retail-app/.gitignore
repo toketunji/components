@@ -1,0 +1,8 @@
+# serverless
+state.json
+.serverless
+
+# node.js
+node_modules/
+npm-debug.*
+yarn-error.log

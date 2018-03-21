@@ -1,7 +1,7 @@
 {
   "name": "serverless-components",
   "version": "0.1.0",
-  "description": "PoC for the next version of the Serverless Framework",
+  "description": "Serverless building blocks",
   "author": "Serverless, Inc.",
   "license": "Apache-2.0",
   "main": "src/index.js",

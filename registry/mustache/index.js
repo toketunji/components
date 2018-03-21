@@ -8,6 +8,8 @@ const deploy = async (inputs) => {
   const values = inputs.values || {}
   const sourcePath = inputs.sourcePath || process.cwd()
 
+  console.log('sourcePath:', sourcePath)
+
   const tmpDir = tmp.dirSync()
   const tmpPath = tmpDir.name
 

@@ -1,0 +1,13 @@
+type: webpack
+
+#TODO: Update these to use the new inputTypes format
+inputs:
+  entry: 'string'
+  favicon: 'string'
+  template: 'string'
+
+outputTypes:
+  output:
+    type: object
+    properties:
+      path: string
