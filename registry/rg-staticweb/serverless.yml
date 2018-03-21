@@ -68,6 +68,11 @@ components:
       originDomain: ${rootDomainBucket.name}.s3.amazonaws.com
       aliasDomain: ${input.aliasDomain}
       distributionEnabled: true
+      loggingEnabled: false
+      loggingBucket: logbucket
+      loggingIncludeCookies: false
+      loggingPrefix: cf-bucketname-
+      priceClass: PriceClass_All      
   siteRoute53Config:
     type: rg-route53
     inputs:
