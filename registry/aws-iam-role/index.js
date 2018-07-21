@@ -85,15 +85,11 @@ const updateAssumeRolePolicy = async ({ name, service }) => {
 const rollback = async (inputs, context) => {
   const { archive, state } = context
   if (!archive.name && state.name) {
-    context.log(`Removing Role: ${state.name}`)
     await deleteRole(state)
   } else if (archive.name && !state.name) {
-    context.log(`Creating Role: ${archive.name}`)
     await createRole(archive)
   } else if (archive.name !== state.name) {
-    context.log(`Removing Role: ${state.name}`)
     await deleteRole(state)
-    context.log(`Creating Role: ${archive.name}`)
     await createRole(archive)
   } else {
     if (archive.service !== state.service) {
@@ -120,7 +116,6 @@ const deploy = async (inputs, context) => {
   }
 
   if (!state.name && inputs.name) {
-    context.log(`Creating Role: ${inputs.name}`)
     const role = await createRole(inputs)
     state = {
       ...state,
@@ -128,16 +123,13 @@ const deploy = async (inputs, context) => {
       name: inputs.name
     }
   } else if (!inputs.name && state.name) {
-    context.log(`Removing Role: ${state.name}`)
     await deleteRole(state)
     state = {
       ...state,
       name: null
     }
   } else if (state.name !== inputs.name) {
-    context.log(`Removing Role: ${state.name}`)
     await deleteRole(state)
-    context.log(`Creating Role: ${inputs.name}`)
     const role = await createRole(inputs)
     state = {
       ...state,
@@ -167,7 +159,6 @@ const remove = async (inputs, context) => {
     arn: null
   }
   try {
-    context.log(`Removing Role: ${context.state.name}`)
     await deleteRole(context.state)
   } catch (e) {
     if (!e.message.includes('Role not found')) {

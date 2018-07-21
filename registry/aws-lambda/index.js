@@ -98,18 +98,13 @@ async function deploy(inputs, context) {
   const role = configuredRole || defaultRole
 
   if (inputs.name && !context.state.name) {
-    context.log(`Creating Lambda: ${inputs.name}`)
     outputs = await createLambda(inputs, context, role)
   } else if (context.state.name && !inputs.name) {
-    context.log(`Removing Lambda: ${context.state.name}`)
     outputs = await deleteLambda(context.state.name)
   } else if (inputs.name !== context.state.name) {
-    context.log(`Removing Lambda: ${context.state.name}`)
     await deleteLambda(context.state.name)
-    context.log(`Creating Lambda: ${inputs.name}`)
     outputs = await createLambda(inputs, context, role)
   } else {
-    context.log(`Updating Lambda: ${inputs.name}`)
     outputs = await updateLambda(inputs, context, role)
   }
 
@@ -133,7 +128,6 @@ async function remove(inputs, context) {
     await defaultRoleComponent.remove()
   }
 
-  context.log(`Removing Lambda: ${context.state.name}`)
   const outputs = {
     arn: null
   }

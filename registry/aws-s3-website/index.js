@@ -43,8 +43,16 @@ const deploy = async (inputs, context) => {
 */
 
 const remove = async (inputs, context) => {
+
+  const name = context.state.name
+
   return utils.deleteWebsiteBucket(inputs.domain).then(() => {
     context.saveState({})
+
+    // TODO: Improve later
+    console.log(``)
+    console.log(`${name}: successfully removed`)
+    console.log(``)
   })
 }
 

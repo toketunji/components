@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /*
 * Service: Remove
 */
@@ -11,8 +13,11 @@ const utils = require('../utils') // eslint-disable-line
 */
 
 module.exports = async (inputs, context) => {
+  const name = context.state.name
+  const space = `${inputs.providers.serverless.tenant}-${inputs.providers.serverless.app}`
+
   const egInputs = {
-    space: inputs.app,
+    space: space,
     accessKey: inputs.providers.serverless.accessKey,
     events: {},
     functions: {},
@@ -20,13 +25,13 @@ module.exports = async (inputs, context) => {
   }
   for (var e in context.state.events) {
     egInputs.events[e] = {
-      space: inputs.app,
+      space: space,
       name: e
     }
   }
   for (var f in context.state.functions) {
     egInputs.functions[f] = {
-      space: inputs.app,
+      space: space,
       functionId: context.state.functions[f].name,
       type: context.state.functions[f].compute.type,
       provider: {
@@ -60,5 +65,11 @@ module.exports = async (inputs, context) => {
   }
 
   context.saveState({})
+
+  // TODO: Improve later
+  console.log(``)
+  console.log(`${name}: successfully removed`)
+  console.log(``)
+
   return {}
 }

@@ -152,5 +152,10 @@ module.exports = async (inputs, context) => {
     // console.log(e)
   }
 
+  // TODO: Improve later
+  console.log(``)
+  console.log(`${context.state.name}: successfully deployed`)
+  console.log(``)
+
   return {}
 }
