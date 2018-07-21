@@ -37,7 +37,7 @@ module.exports = async (inputs, context) => {
       }
     }
   }
-  const eg = await context.load('../../components/eventgateway', 'subscriptions', egInputs)
+  const eg = await context.load('eventgateway', 'subscriptions', egInputs)
   await eg.remove()
   delete context.state.events
   delete context.state.subscriptions
@@ -49,7 +49,7 @@ module.exports = async (inputs, context) => {
 
   for (var f in context.state.functions) {
     const fn = await context.load(
-      '../../components/function',
+      'function',
       context.state.functions[f].name,
       context.state.functions[f]
     )
