@@ -1,0 +1,28 @@
+type: eventgateway-2
+version: 0.2.0
+core: 0.2.x
+
+description: "Event Gateway Serverless Component."
+license: Apache-2.0
+author: "Serverless, Inc. <hello@serverless.com> (https://serverless.com)"
+repository: "github:serverless/components"
+
+inputTypes:
+  accessKey:
+    type: string
+    displayName: Serverless Platform Access Key
+    description: Access key of your Application on the Serverless Platform
+    required: true
+  space:
+    type: string
+    description: "Name of tenant and application in the Serverless Platform (e.g. 'tenant-app')"
+    required: true
+  subscriptions:
+    type: object
+    required: false
+  functions:
+    type: object
+    required: false
+  events:
+    type: object
+    required: false

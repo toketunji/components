@@ -58,7 +58,7 @@ module.exports = async (inputs, context) => {
   */
 
   for (var f in functions) {
-    const fn = await context.load('../../components/function', functions[f].name, functions[f])
+    const fn = await context.load('function', functions[f].name, functions[f])
     const fnOutputs = await fn.deploy()
     functions[f].compute.arn = fnOutputs.compute.arn
     functions[f].compute.region = fnOutputs.compute.region
@@ -112,7 +112,7 @@ module.exports = async (inputs, context) => {
     }
   }
 
-  const eg = await context.load('../../components/eventgateway', 'subscriptions', egInputs)
+  const eg = await context.load('eventgateway-2', 'subscriptions', egInputs)
   const egOutputs = await eg.deploy()
 
   // Update & Save state
