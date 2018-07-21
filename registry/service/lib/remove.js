@@ -4,13 +4,13 @@
 
 const utils = require('../utils') // eslint-disable-line
 
-module.exports = async (inputs, context) => {
-  /*
-  * Remove Events & Subscriptions
-  *  - First you have to reinstantiate the EG instance (ugh!)
-  * - This includes the bare minimum to instantiate the EG Component and enable it to delete the corresponding records
-  */
+/*
+* Remove Events & Subscriptions
+*  - First you have to reinstantiate the EG instance (ugh!)
+* - This includes the bare minimum to instantiate the EG Component and enable it to delete the corresponding records
+*/
 
+module.exports = async (inputs, context) => {
   const egInputs = {
     space: inputs.app,
     accessKey: inputs.providers.serverless.accessKey,
@@ -37,7 +37,7 @@ module.exports = async (inputs, context) => {
       }
     }
   }
-  const eg = await context.load('eventgateway', 'subscriptions', egInputs)
+  const eg = await context.load('eventgateway-2', 'subscriptions', egInputs)
   await eg.remove()
   delete context.state.events
   delete context.state.subscriptions

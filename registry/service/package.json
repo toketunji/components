@@ -12,6 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@serverless/platform-sdk": "^0.1.5"
+    "@serverless/platform-sdk": "latest"
   }
 }

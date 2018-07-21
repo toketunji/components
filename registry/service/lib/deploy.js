@@ -1,15 +1,35 @@
+/* eslint-disable */
+
 /*
 * Service: Deploy
 */
 
-const utils = require('../utils') // eslint-disable-line
+const utils = require('../utils')
 
 module.exports = async (inputs, context) => {
+  // Platform: Create Deployment
+  const deployment = {
+    version: '0.1.0',
+    accessKey: inputs.providers.serverless.accessKey,
+    tenant: inputs.providers.serverless.tenant,
+    app: inputs.providers.serverless.app,
+    serviceName: inputs.name
+  }
+  try {
+    deployment.deploymentId = await utils.platform.createDeployment(deployment)
+  } catch (e) {
+    // console.log(e)
+  }
+
   // Set defaults
   let events = {}
   let functions = {}
   let subscriptions = {}
   context.state = context.state || {}
+  context.state.tenant = inputs.providers.serverless.tenant
+  context.state.app = inputs.providers.serverless.app
+  context.state.name = inputs.name
+  context.state.description = inputs.description
   context.state.events = context.state.events || {}
   context.state.functions = context.state.functions || {}
   context.state.subscriptions = context.state.subscriptions || {}
@@ -62,6 +82,8 @@ module.exports = async (inputs, context) => {
     const fnOutputs = await fn.deploy()
     functions[f].compute.arn = fnOutputs.compute.arn
     functions[f].compute.region = fnOutputs.compute.region
+    functions[f].compute.memory = fnOutputs.compute.memory
+    functions[f].compute.timeout = fnOutputs.compute.timeout
     // Update & Save state
     context.state.functions[functions[f].name] = functions[f]
     context.saveState(context.state)
@@ -71,9 +93,12 @@ module.exports = async (inputs, context) => {
   * Deploy: Events & Subscriptions
   */
 
+  // Requires "tenant-app" format for "space"
+  const space = `${inputs.providers.serverless.tenant}-${inputs.providers.serverless.app}`
+
   // Massage data into the format the EventGateway Component expects
   const egInputs = {
-    space: inputs.app,
+    space: space,
     accessKey: inputs.providers.serverless.accessKey,
     events: {},
     functions: {},
@@ -81,14 +106,14 @@ module.exports = async (inputs, context) => {
   }
   for (var e in events) {
     egInputs.events[e] = {
-      space: inputs.app,
+      space: space,
       name: e,
       authorizerId: events[e].authorizerId || null
     }
   }
   for (var f in functions) {
     egInputs.functions[f] = {
-      space: inputs.app,
+      space: space,
       functionId: f,
       type: functions[f].compute.type,
       provider: {
@@ -119,6 +144,13 @@ module.exports = async (inputs, context) => {
   context.state.events = egOutputs.events
   context.state.subscriptions = egOutputs.subscriptions
   context.saveState(context.state)
+
+  // Platform: Succeed Deployment
+  try {
+    await utils.platform.succeedDeployment(deployment)
+  } catch (e) {
+    // console.log(e)
+  }
 
   return {}
 }

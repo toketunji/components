@@ -11,12 +11,12 @@ inputTypes:
   providers:
     type: object
     required: false
-  app:
+  name:
     type: string
     required: true
-  domain:
+  description:
     type: string
-    required: true
+    required: false
   events:
     type: object
     required: false
