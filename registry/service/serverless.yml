@@ -1,0 +1,28 @@
+type: service
+version: 0.2.0
+core: 0.2.x
+
+description: "The default serverless service component."
+license: Apache-2.0
+author: "Serverless, Inc. <hello@serverless.com> (https://serverless.com)"
+repository: "github:serverless/service"
+
+inputTypes:
+  providers:
+    type: object
+    required: false
+  app:
+    type: string
+    required: true
+  domain:
+    type: string
+    required: true
+  events:
+    type: object
+    required: false
+  functions:
+    type: object
+    required: false
+  subscriptions:
+    type: object
+    required: false

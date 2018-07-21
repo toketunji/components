@@ -1,0 +1,22 @@
+type: function
+version: 0.0.1
+core: 0.2.x
+
+description: "A serverless function capable of deploying to multiple FaaS platforms"
+license: Apache-2.0
+author: "Serverless, Inc. <hello@serverless.com> (https://serverless.com)"
+repository: "github:serverless/function"
+
+inputTypes:
+  provider:
+    type: object
+    required: true
+  name:
+    type: string
+    required: true
+  code:
+    type: string
+    required: true
+  compute:
+    type: object
+    required: false # Defaults are automatically applied

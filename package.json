@@ -12,7 +12,8 @@
   },
   "homepage": "https://github.com/serverless/components#readme",
   "bin": {
-    "components": "./bin/components"
+    "components": "./bin/components",
+    "v2": "./bin/components"
   },
   "scripts": {
     "cleanse": "node ./scripts/cleanse.js",
@@ -67,7 +68,12 @@
     "collectCoverage": true
   },
   "lint-staged": {
-    "*.js": ["eslint --fix .", "git add -A"]
+    "*.js": [
+      "eslint --fix .",
+      "git add -A"
+    ]
   },
-  "pre-commit": ["lint:staged"]
+  "pre-commit": [
+    "lint:staged"
+  ]
 }
