@@ -5,17 +5,20 @@ core: 0.2.x
 description: "The default serverless service component."
 license: Apache-2.0
 author: "Serverless, Inc. <hello@serverless.com> (https://serverless.com)"
-repository: "github:serverless/service"
+repository: "github:serverless/components"
 
 inputTypes:
-  providers:
-    type: object
-    required: false
   name:
     type: string
     required: true
   description:
     type: string
+    required: false
+  providers:
+    type: object
+    required: false
+  options:
+    type: object
     required: false
   events:
     type: object

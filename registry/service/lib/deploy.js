@@ -33,7 +33,7 @@ module.exports = async (inputs, context) => {
   context.state.events = context.state.events || {}
   context.state.functions = context.state.functions || {}
   context.state.subscriptions = context.state.subscriptions || {}
-  context.state.defaults = context.state.defaults || {}
+  context.state.options = context.state.options || {}
 
   /*
   * Prepare Data for processing: Events, Functions, Subscriptions
@@ -51,10 +51,10 @@ module.exports = async (inputs, context) => {
       code: inputs.functions[f].code,
       compute: inputs.functions[f].compute || {}
     }
-    if (inputs.defaults && inputs.defaults.function && inputs.defaults.function.compute) {
+    if (inputs.options && inputs.options.function && inputs.options.function.compute) {
       // Do a deep copy using JSON methods otherwise you will run into issues w/ object references
       functions[f].compute = JSON.parse(
-        JSON.stringify(Object.assign(inputs.defaults.function.compute, functions[f].compute || {}))
+        JSON.stringify(Object.assign(inputs.options.function.compute, functions[f].compute || {}))
       )
     }
     if (functions[f].compute.type === 'awsLambda') {
