@@ -23,7 +23,7 @@ module.exports = async (inputs, context) => {
       await utils.deleteEvent(context.state.events[e].name)
     } catch (err) {
       if (!err.message.includes('not found')) {
-        throw new Error(e)
+        throw new Error(err)
       }
     }
   }
@@ -51,7 +51,7 @@ module.exports = async (inputs, context) => {
       await utils.deleteFunction(context.state.functions[f].functionId)
     } catch (err) {
       if (!err.message.includes('not found')) {
-        throw new Error(e)
+        throw new Error(err)
       }
     }
   }

@@ -17,13 +17,33 @@ module.exports = async (inputs, context) => {
 
   // Register Functions
   for (var f in inputs.functions) {
+    // Add 'metadata' to track which service created these resources
+    inputs.functions[f].metadata = {
+      serviceId: context.serviceId
+    }
+
     inputs.functions[f].type = inputs.functions[f].type.toLowerCase()
-    context.state.functions[f] = await utils.createOrUpdateFunction(inputs.functions[f])
+    try {
+      context.state.functions[f] = await utils.createOrUpdateFunction(inputs.functions[f])
+    } catch (err) {
+      throw new Error(err.message)
+    }
+    context.saveState(context.state)
   }
 
   // Register Events
   for (var e in inputs.events) {
-    context.state.events[e] = await utils.createOrUpdateEvent(inputs.events[e])
+    // Add 'metadata' to track which service created these resources
+    inputs.events[e].metadata = {
+      serviceId: context.serviceId
+    }
+
+    try {
+      context.state.events[e] = await utils.createOrUpdateEvent(inputs.events[e])
+    } catch (err) {
+      throw new Error(err.message)
+    }
+    context.saveState(context.state)
   }
 
   // Register Subscriptions
@@ -49,16 +69,28 @@ module.exports = async (inputs, context) => {
         inputs.subscriptions[e][f].path = '/' + inputs.space + inputs.subscriptions[e][f].path
       }
 
+      // Add 'metadata' to track which service created these resources
+      inputs.subscriptions[e][f].metadata = {
+        serviceId: context.serviceId
+      }
+
       try {
         context.state.subscriptions[e][f] = await utils.createOrUpdateSubscription(
           inputs.subscriptions[e][f],
           subscriptionID
         )
       } catch (err) {
+        // Add better error message to include Event, Function, Path, Method
+        if (err.message.includes('already exists')) {
+          err.message = `${err.message} - Event: "${e}", Function: "${f}", Path: "${inputs.subscriptions[e][f].path}", Method: "${inputs.subscriptions[e][f].method}"` // eslint-disable-line
+        }
         throw new Error(err.message)
       }
 
+      context.saveState(context.state)
+
       // Update CORS
+      // TODO: Determine how to handle this across many subscriptions using the same path + method
       let subPath = inputs.subscriptions[e][f].path
       let subMethod = inputs.subscriptions[e][f].method
       let cors = {
@@ -85,12 +117,15 @@ module.exports = async (inputs, context) => {
       try {
         context.state.cors[subPath][subMethod] = await utils.createOrUpdateCORS(cors)
       } catch (err) {
-        throw new Error(err.message)
+        if (err.message.includes('already exists')) {
+          // TODO: Verbose log what's happening
+        } else {
+          throw new Error(err.message)
+        }
       }
+      context.saveState(context.state)
     }
   }
-
-  context.saveState(context.state)
 
   return {
     events: context.state.events,

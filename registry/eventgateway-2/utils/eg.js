@@ -22,14 +22,32 @@ function configEventGateway(accessKey, space) {
 */
 
 async function createOrUpdateEvent(evt) {
-  return eventGateway.createEventType(evt).catch((error) => {
-    if (error.message.includes('already exists')) {
-      // Update
-      return eventGateway.updateEventType(evt)
-    } else {
-      throw new Error(error)
-    }
-  })
+  // Check to see if this was already registered in another Service to avoid overwriting
+  let exists = false
+  // TODO: Replace with show method when it's available
+  return eventGateway
+    .listEventTypes()
+    .then((data) => {
+      data.forEach((d) => {
+        if (d.name !== evt.name) return
+        if (d.metadata && d.metadata.serviceId !== evt.metadata.serviceId) {
+          throw new Error(
+            `Event "${evt.name}" is already registered in another Service with the ID of "${
+              d.metadata.serviceId
+            }"`
+          )
+        } else {
+          exists = true
+        }
+      })
+    })
+    .then(() => {
+      if (!exists) {
+        return eventGateway.createEventType(evt)
+      } else {
+        return eventGateway.updateEventType(evt)
+      }
+    })
 }
 
 /*
@@ -42,14 +60,33 @@ function createOrUpdateFunction(f) {
   if (f.type == 'http' && !f.provider.url) {
     throw new Error('Missing "url" property in function provider')
   }
-  return eventGateway.createFunction(f).catch((error) => {
-    if (error.message.includes('already registered')) {
-      // Update
-      return eventGateway.updateFunction(f)
-    } else {
-      throw new Error(error.message)
-    }
-  })
+
+  // Check to see if this was already registered in another Service to avoid overwriting
+  let exists = false
+  // TODO: Replace with show method when it's available
+  return eventGateway
+    .listFunctions()
+    .then((data) => {
+      data.forEach((d) => {
+        if (d.functionId !== f.functionId) return
+        if (d.metadata && d.metadata.serviceId !== f.metadata.serviceId) {
+          throw new Error(
+            `Function with ID "${
+              f.functionId
+            }" is already registered in another Service with the ID of "${d.metadata.serviceId}"`
+          )
+        } else {
+          exists = true
+        }
+      })
+    })
+    .then(() => {
+      if (!exists) {
+        return eventGateway.createFunction(f)
+      } else {
+        return eventGateway.updateFunction(f)
+      }
+    })
 }
 
 /*
@@ -59,23 +96,59 @@ function createOrUpdateFunction(f) {
 */
 
 function createOrUpdateSubscription(s, subscriptionId) {
+  // Check to see if this was already registered in another Service to avoid overwriting
+  let exists = false
+  // TODO: Replace with show method when it's available
   return eventGateway
-    .unsubscribe({ subscriptionId: subscriptionId })
-    .catch((error) => {
-      // For whatever reason (user errors), sometimes the state can get out of sync.
-      // This is a patch to help it until we think of something better.
-      if (!error.message.includes('not found')) {
-        throw new Error(error.message)
-      }
+    .listSubscriptions()
+    .then((data) => {
+      data.forEach((d) => {
+        if (
+          subscriptionId === undefined &&
+          s.path.toLowerCase() == d.path.toLowerCase() &&
+          s.method.toLowerCase() == d.method.toLowerCase() &&
+          s.eventType == d.eventType &&
+          s.functionId == d.functionId &&
+          s.type == d.type
+        ) {
+          throw new Error(
+            `Subscription with the Path of "${s.path}", Method of "${s.method}", Event Type of "${
+              s.eventType
+            }", Function ID of "${s.functionId}", Subscription Type of "${
+              s.type
+            }", is already registered in Service with the ID of "${d.metadata.serviceId}"`
+          )
+        }
+
+        if (subscriptionId && d.subscriptionId == subscriptionId) {
+          exists = true
+          if (d.metadata && d.metadata.serviceId !== s.metadata.serviceId) {
+            throw new Error(
+              `Subscription with the ID of "${subscriptionId}" is already registered in Service with the ID of "${
+                d.metadata.serviceId
+              }"`
+            )
+          }
+        }
+      })
     })
     .then(() => {
-      return eventGateway.subscribe(s)
+      if (!exists) {
+        return eventGateway.subscribe(s)
+      } else {
+        // TODO: Use updateSubscription method when it's available
+        return eventGateway.unsubscribe({ subscriptionId: subscriptionId }).then(() => {
+          return eventGateway.subscribe(s)
+        })
+      }
     })
 }
 
 /*
 * CreateOrUpdateCORS
 */
+
+// TODO: Don't overwrite.  Can we use metadata for this?
 
 function createOrUpdateCORS(c) {
   if (!c.corsId) {

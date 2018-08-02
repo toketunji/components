@@ -2,6 +2,28 @@
 
 const uuid = require('uuid')
 const platform = require('@serverless/platform-sdk')
+const EventGateway = require('@serverless/event-gateway-sdk')
+
+/*
+* Emit
+* - Emit a CloudEvent
+*/
+
+const emit = (tenant, app, type, data) => {
+  let evt = {}
+  evt.eventType = type
+  evt.eventID = uuid.v4()
+  evt.source = '/' + app
+  evt.extensions = {}
+  evt.data = data || {}
+  evt.cloudEventsVersion = '0.1'
+  evt.contentType = 'application/json'
+
+  const eventGateway = new EventGateway({
+    url: `https://${tenant}-${app}.slsgateway.com`
+  })
+  return eventGateway.emit(evt)
+}
 
 /*
 * Transform
@@ -129,6 +151,21 @@ const createDeployment = (deployment) => {
 const failDeployment = (deployment) => {
   deployment.status = 'Failed'
   return platform.updateDeployment(deployment)
+  .then(() => {
+    // Publish a deployment event
+    return emit(
+      state.tenant,
+      state.app,
+      'framework.deployment.failed',
+      {
+        tenant: state.tenant,
+        app: state.app,
+        service: state.name,
+        time: Date.now(),
+        deployment: deployment
+      }
+    )
+  })
 }
 
 /*
@@ -141,6 +178,21 @@ const succeedDeployment = (deployment, state) => {
   deployment = transform(deployment, state)
   deployment.status = 'success'
   return platform.updateDeployment(deployment)
+  .then(() => {
+    // Publish a deployment event
+    return emit(
+      state.tenant,
+      state.app,
+      'framework.deployment.success',
+      {
+        tenant: state.tenant,
+        app: state.app,
+        service: state.name,
+        time: Date.now(),
+        deployment: deployment
+      }
+    )
+  })
 }
 
 /*

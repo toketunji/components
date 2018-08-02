@@ -36,6 +36,8 @@ module.exports = async (inputs, context) => {
       version: '0.1.0',
       service: {
         name: inputs.name,
+        description: inputs.description || null,
+        repository: inputs.repository || null,
         provider: {
           name: 'aws',
           region: 'us-east-1',
@@ -95,8 +97,8 @@ module.exports = async (inputs, context) => {
     }
     subscriptions[e] = subscriptions[e] || {}
     for (var f in sub) {
-      sub = sub[f]
-      subscriptions[e][f] = sub || {}
+      sub = sub[f] || {}
+      subscriptions[e][f] = sub
       subscriptions[e][f].sync = sub.sync || false
       subscriptions[e][f].path = sub.path || '/'
       subscriptions[e][f].method = sub.method || 'POST'
@@ -136,14 +138,12 @@ module.exports = async (inputs, context) => {
   }
   for (var e in events) {
     egInputs.events[e] = {
-      space: space,
       name: e,
       authorizerId: events[e].authorizerId || null
     }
   }
   for (var f in functions) {
     egInputs.functions[f] = {
-      space: space,
       functionId: f,
       type: functions[f].compute.type,
       provider: {

@@ -46,6 +46,7 @@ module.exports = async (inputs, context) => {
       }
     }
   }
+  
   const eg = await context.load('eventgateway-2', 'subscriptions', egInputs)
   await eg.remove()
   delete context.state.events

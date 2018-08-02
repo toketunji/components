@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@serverless/event-gateway-sdk": "^0.10.2",
     "@serverless/platform-sdk": "latest",
     "uuid": "^3.3.2"
   }
