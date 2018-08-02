@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@serverless/platform-sdk": "latest"
+    "@serverless/platform-sdk": "latest",
+    "uuid": "^3.3.2"
   }
 }

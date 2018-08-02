@@ -48,10 +48,15 @@ module.exports = async (inputs, context) => {
       if (!inputs.subscriptions[e][f].path.startsWith('/' + inputs.space)) {
         inputs.subscriptions[e][f].path = '/' + inputs.space + inputs.subscriptions[e][f].path
       }
-      context.state.subscriptions[e][f] = await utils.createOrUpdateSubscription(
-        inputs.subscriptions[e][f],
-        subscriptionID
-      )
+
+      try {
+        context.state.subscriptions[e][f] = await utils.createOrUpdateSubscription(
+          inputs.subscriptions[e][f],
+          subscriptionID
+        )
+      } catch (err) {
+        throw new Error(err.message)
+      }
 
       // Update CORS
       let subPath = inputs.subscriptions[e][f].path
@@ -77,7 +82,11 @@ module.exports = async (inputs, context) => {
       if (context.state.cors[subPath][subMethod]) {
         cors = Object.assign(context.state.cors[subPath][subMethod], cors)
       }
-      context.state.cors[subPath][subMethod] = await utils.createOrUpdateCORS(cors)
+      try {
+        context.state.cors[subPath][subMethod] = await utils.createOrUpdateCORS(cors)
+      } catch (err) {
+        throw new Error(err.message)
+      }
     }
   }
 

@@ -7,19 +7,6 @@
 const utils = require('../utils')
 
 module.exports = async (inputs, context) => {
-  // Platform: Create Deployment
-  const deployment = {
-    version: '0.1.0',
-    accessKey: inputs.providers.serverless.accessKey,
-    tenant: inputs.providers.serverless.tenant,
-    app: inputs.providers.serverless.app,
-    serviceName: inputs.name
-  }
-  try {
-    deployment.deploymentId = await utils.platform.createDeployment(deployment)
-  } catch (e) {
-    // console.log(e)
-  }
 
   // Set defaults
   let events = {}
@@ -35,13 +22,50 @@ module.exports = async (inputs, context) => {
   context.state.subscriptions = context.state.subscriptions || {}
   context.state.options = context.state.options || {}
 
+  // Platform: Create Deployment
+  const deployment = {
+    version: '0.1.0',
+    accessKey: inputs.providers.serverless.accessKey,
+    tenant: inputs.providers.serverless.tenant,
+    app: inputs.providers.serverless.app,
+    serviceName: inputs.name,
+    state: {
+      app: inputs.providers.serverless.app,
+      tenant: inputs.providers.serverless.tenant,
+      accessKey: inputs.providers.serverless.accessKey,
+      version: '0.1.0',
+      service: {
+        name: inputs.name,
+        provider: {
+          name: 'aws',
+          region: 'us-east-1',
+          accountId: '123',
+        },
+      },
+      functions: [],
+      subscriptions: [],
+      resources: []
+    }
+  }
+
+  try {
+    const createdDeployment = await utils.platform.createDeployment(deployment)
+    deployment.deploymentId = createdDeployment.id
+  } catch (e) {
+    console.log(e)
+  }
+
   /*
   * Prepare Data for processing: Events, Functions, Subscriptions
   */
 
   // Prepare Events
   for (var e in inputs.events) {
-    events[e] = inputs.events[e] || {}
+    // Add optional prefix to the beginning of the event type
+    if (inputs.options.event && inputs.options.event.prefix) {
+      e = inputs.options.event.prefix + '.' + e
+    }
+    events[e] = e || {}
   }
 
   // Prepare Functions
@@ -64,12 +88,18 @@ module.exports = async (inputs, context) => {
 
   // Prepare Subscriptions
   for (var e in inputs.subscriptions) {
+    let sub = inputs.subscriptions[e]
+    // Add optional prefix to the beginning of the event type
+    if (inputs.options.subscription && inputs.options.subscription.prefix) {
+      e = inputs.options.subscription.prefix + '.' + e
+    }
     subscriptions[e] = subscriptions[e] || {}
-    for (var s in inputs.subscriptions[e]) {
-      subscriptions[e][s] = inputs.subscriptions[e][s] || {}
-      subscriptions[e][s].sync = inputs.subscriptions[e][s].sync || false
-      subscriptions[e][s].path = inputs.subscriptions[e][s].path || '/'
-      subscriptions[e][s].method = inputs.subscriptions[e][s].method || 'POST'
+    for (var f in sub) {
+      sub = sub[f]
+      subscriptions[e][f] = sub || {}
+      subscriptions[e][f].sync = sub.sync || false
+      subscriptions[e][f].path = sub.path || '/'
+      subscriptions[e][f].method = sub.method || 'POST'
     }
   }
 
@@ -124,6 +154,7 @@ module.exports = async (inputs, context) => {
       }
     }
   }
+
   for (var e in subscriptions) {
     for (var f in subscriptions[e]) {
       subscriptions[e][f].eventType = e
@@ -147,14 +178,15 @@ module.exports = async (inputs, context) => {
 
   // Platform: Succeed Deployment
   try {
-    await utils.platform.succeedDeployment(deployment)
+    await utils.platform.succeedDeployment(deployment, context.state)
   } catch (e) {
-    // console.log(e)
+    console.log(e)
   }
 
   // TODO: Improve later
   console.log(``)
   console.log(`${context.state.name}: successfully deployed`)
+  console.log(`${context.state.name}: dashboard url - https://dashboard.serverless.com/tenants/${context.state.tenant}/applications/${context.state.app}/services/${context.state.name}`)
   console.log(``)
 
   return {}

@@ -1,5 +1,6 @@
 /* eslint-disable */
 
+const uuid = require('uuid')
 const platform = require('@serverless/platform-sdk')
 
 /*
@@ -8,25 +9,6 @@ const platform = require('@serverless/platform-sdk')
 */
 
 const transform = (deployment, state) => {
-  // Populate Service
-  deployment.state = {
-    version: '0.1.0',
-    service: {
-      name: state.name,
-      description: state.description || null,
-      repository: state.repository || null,
-      provider: [
-        {
-          name: 'serverless'
-        },
-        {
-          name: 'aws'
-        },
-      ]
-    },
-    functions: [],
-    subscriptions: []
-  }
 
   // Populate functions
 
@@ -66,8 +48,9 @@ const transform = (deployment, state) => {
 
   const platform_subscription_eventgateway = {
     functionId: null,
+    type: null,
     details: {
-      type: null, // Event Type
+      type: null, // sync or async
       function: null,
       source: null,
       path: '/',
@@ -84,20 +67,29 @@ const transform = (deployment, state) => {
       name: null,
       service: null,
       stage: null
+    },
+    event: {
+      type: null,
+      eventType: null,
+      path: null,
+      method: null,
     }
   }
 
   for (evt in state.subscriptions) {
     for (stateSub in state.subscriptions[evt]) {
+
       stateSub = state.subscriptions[evt][stateSub]
       platformSub = JSON.parse(JSON.stringify(platform_subscription_eventgateway))
+      platformSub.subscriptionId = uuid.v4()
       platformSub.functionId = stateSub.functionId
+      platformSub.type = stateSub.eventType
 
       platformSub.details.app = state.app
       platformSub.details.service = state.name
-      platformSub.details.type = stateSub.eventType
-      platformSub.details.stage = null
+      platformSub.details.type = stateSub.type
       platformSub.details.function = stateSub.functionId
+      platformSub.details.eventType = stateSub.eventType
       platformSub.details.source = `/${state.app}`
       platformSub.details.path = stateSub.path
       platformSub.details.method = stateSub.method
@@ -105,9 +97,14 @@ const transform = (deployment, state) => {
       platformSub.provider.name = 'Serverless'
       platformSub.provider.tenant = state.tenant
 
-      platformSub.properties.name = state.eventType
-      platformSub.properties.tenant = state.tenant
+      platformSub.properties.name = stateSub.eventType
+      platformSub.properties.service = state.name
       platformSub.properties.stage = null
+
+      platformSub.event.type = stateSub.type
+      platformSub.event.eventType = stateSub.eventType
+      platformSub.event.path = stateSub.path
+      platformSub.event.method = stateSub.method
 
       deployment.state.subscriptions.push(platformSub)
     }
@@ -142,7 +139,7 @@ const failDeployment = (deployment) => {
 const succeedDeployment = (deployment, state) => {
   // Convert data to match Platform's format
   deployment = transform(deployment, state)
-  deployment.status = 'Success'
+  deployment.status = 'success'
   return platform.updateDeployment(deployment)
 }
 
@@ -151,10 +148,19 @@ const succeedDeployment = (deployment, state) => {
 * - Archive the service on the serverless platform
 */
 
-const archive = (service) => {}
+const archive = (tenant, app, name, accessKey) => {
+  const data = {
+    tenant,
+    app,
+    name,
+    accessKey
+  }
+  return platform.archiveService(data)
+}
 
 module.exports = {
   createDeployment,
   failDeployment,
-  succeedDeployment
+  succeedDeployment,
+  archive
 }

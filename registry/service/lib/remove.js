@@ -13,7 +13,11 @@ const utils = require('../utils') // eslint-disable-line
 */
 
 module.exports = async (inputs, context) => {
-  const name = context.state.name
+
+  const tenant = context.state.tenant
+  const app = context.state.app
+  const service = context.state.name
+  const accessKey = inputs.providers.serverless.accessKey
   const space = `${inputs.providers.serverless.tenant}-${inputs.providers.serverless.app}`
 
   const egInputs = {
@@ -66,9 +70,16 @@ module.exports = async (inputs, context) => {
 
   context.saveState({})
 
+  // Platform: Archive Service
+  try {
+    await utils.platform.archive(tenant, app, service, accessKey)
+  } catch (e) {
+    console.log(e)
+  }
+
   // TODO: Improve later
   console.log(``)
-  console.log(`${name}: successfully removed`)
+  console.log(`${service}: successfully removed`)
   console.log(``)
 
   return {}
