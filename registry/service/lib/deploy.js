@@ -90,7 +90,10 @@ module.exports = async (inputs, context) => {
 
   // Prepare Subscriptions
   for (var e in inputs.subscriptions) {
-    let sub = inputs.subscriptions[e]
+
+    inputs.subscriptions[e] = typeof inputs.subscriptions[e] == 'object' ? inputs.subscriptions[e] : {}
+
+    let sub = typeof inputs.subscriptions[e] == 'object' ? inputs.subscriptions[e] : {}
     // Add optional prefix to the beginning of the event type
     if (inputs.options.subscription && inputs.options.subscription.prefix) {
       e = inputs.options.subscription.prefix + '.' + e

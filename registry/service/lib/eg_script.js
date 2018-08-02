@@ -25,11 +25,11 @@ module.exports = async (inputs, context) => {
   //   throw new Error(err)
   // }
 
-  try {
-    console.log(await eventGateway.listSubscriptions())
-  } catch (err) {
-    throw new Error(err)
-  }
+  // try {
+  //   console.log(await eventGateway.listSubscriptions())
+  // } catch (err) {
+  //   throw new Error(err)
+  // }
 
   // try {
   //   console.log(await eventGateway.listEventTypes())
